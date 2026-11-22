@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 30-Question Assessment — PEMDAS & Fractions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0F172A; color: #F8FAFC; }
+        h1, h2, h3, .font-heading { font-family: 'Chakra Petch', sans-serif; }
+        .math-expr { font-family: 'Courier New', Courier, monospace; font-weight: 700; letter-spacing: 0.03em; }
+        .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 3px; line-height: 1.05; }
+        .frac > span:first-child { border-bottom: 2px solid currentColor; padding: 0 4px 1px 4px; }
+        .frac > span:last-child { padding: 1px 4px 0 4px; }
+        .mixed { display: inline-flex; align-items: center; vertical-align: middle; gap: 2px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 select-none">
+
+    <!-- STICKY TOP BAR -->
+    <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-cyan-500/30 px-4 py-3 shadow-lg">
+        <div class="max-w-3xl mx-auto flex justify-between items-center gap-3">
+            <div class="flex items-center gap-2.5">
+                <div class="bg-gradient-to-tr from-cyan-400 to-blue-500 p-2 rounded-xl text-slate-950 font-bold">
+                    <i class="fa-solid fa-calculator text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white uppercase leading-none">
+                        Math Assessment (30 Questions)
+                    </h1>
+                    <p class="text-[11px] text-cyan-400 mt-0.5">Order of Operations (PEMDAS) & Mixed/Improper Fractions</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <div class="bg-slate-800 border border-amber-400/40 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-star"></i>
+                    <span id="live-score">0</span>/<span id="live-answered">0</span>
+                </div>
+                <button onclick="resetMathTest()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl border border-slate-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span class="hidden sm:inline">Reset</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 max-w-3xl w-full mx-auto p-4 pb-24 space-y-4">
+        <div class="bg-slate-900 border border-cyan-500/30 rounded-2xl p-4">
+            <div class="flex flex-wrap gap-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                    Q1–Q15: Order of Operations (PEMDAS)
+                </span>
+                <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                    Q16–Q30: Mixed Numbers & Improper Fractions
+                </span>
+            </div>
+            <h2 class="text-lg sm:text-xl font-bold text-white mt-2">
+                30-Question Combined Mathematics Assessment
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">
+                Tap an answer choice for each question to check your answer and see the step-by-step solution.
+            </p>
+        </div>
+
+        <div id="questions-list" class="space-y-4"></div>
+
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 border border-cyan-500/40 rounded-2xl p-5 text-center space-y-2 mt-6">
+            <h3 class="text-lg font-bold text-white">Math Score Summary</h3>
+            <p class="text-xs text-slate-300">
+                Answered: <strong id="summary-answered" class="text-cyan-400">0</strong> / <strong class="text-white">30</strong> &nbsp;|&nbsp;
+                Score: <strong id="summary-correct" class="text-emerald-400">0</strong> / <strong class="text-white">30</strong>
+            </p>
+        </div>
+    </main>
+
+    <script>
+        function f(num, den) {
+            return `<span class="frac"><span>${num}</span><span>${den}</span></span>`;
+        }
+        function m(whole, num, den) {
+            return `<span class="mixed"><span>${whole}</span>${f(num, den)}</span>`;
+        }
+
+        const mathQuestions = [
+            // PART 1: ORDER OF OPERATIONS (PEMDAS) — Q1 to Q15
+            { topic: "PEMDAS", q: "14 + 6 × 3 =", options: ["60", "32", "23", "42"], correct: 1, exp: "6 × 3 = 18 → 14 + 18 = 32" },
+            { topic: "PEMDAS", q: "(18 − 6) ÷ 3 =", options: ["16", "2", "4", "6"], correct: 2, exp: "(18 − 6) = 12 → 12 ÷ 3 = 4" },
+            { topic: "PEMDAS", q: "24 ÷ 6 × 2 =", options: ["2", "8", "6", "12"], correct: 1, exp: "24 ÷ 6 = 4 → 4 × 2 = 8" },
+            { topic: "PEMDAS", q: "5² + 4 × 3 =", options: ["37", "22", "87", "63"], correct: 0, exp: "5² = 25, 4 × 3 = 12 → 25 + 12 = 37" },
+            { topic: "PEMDAS", q: "30 − 12 ÷ 3 + 5 =", options: ["11", "21", "31", "1"], correct: 2, exp: "12 ÷ 3 = 4 → 30 − 4 = 26 → 26 + 5 = 31" },
+            { topic: "PEMDAS", q: "(3 + 5)² ÷ 8 =", options: ["8", "2", "4", "64"], correct: 0, exp: "(3 + 5) = 8 → 8² = 64 → 64 ÷ 8 = 8" },
+            { topic: "PEMDAS", q: "40 − 3 × (2 + 4)² =", options: ["1332", "−68", "4", "−104"], correct: 1, exp: "(2 + 4) = 6 → 6² = 36 → 3 × 36 = 108 → 40 − 108 = −68" },
+            { topic: "PEMDAS", q: "(16 ÷ 4) + (3 × 7) =", options: ["25", "49", "28", "19"], correct: 0, exp: "16 ÷ 4 = 4, 3 × 7 = 21 → 4 + 21 = 25" },
+            { topic: "PEMDAS", q: "(18 + 12) ÷ (9 − 3) =", options: ["30", "6", "5", "4"], correct: 2, exp: "(18 + 12) = 30, (9 − 3) = 6 → 30 ÷ 6 = 5" },
+            { topic: "PEMDAS", q: "4 × (6 + 2²) − 10 ÷ 2 =", options: ["35", "15", "27", "39"], correct: 0, exp: "2² = 4 → 6 + 4 = 10 → 4 × 10 = 40, 10 ÷ 2 = 5 → 40 − 5 = 35" },
+            { topic: "PEMDAS", q: "9 + 15 ÷ 3 × 2 =", options: ["19", "16", "11.5", "24"], correct: 0, exp: "15 ÷ 3 = 5 → 5 × 2 = 10 → 9 + 10 = 19" },
+            { topic: "PEMDAS", q: "2³ + 6 × 4 =", options: ["30", "32", "56", "48"], correct: 1, exp: "2³ = 8, 6 × 4 = 24 → 8 + 24 = 32" },
+            { topic: "PEMDAS", q: "50 − (14 + 6) ÷ 4 =", options: ["7.5", "45", "40", "30"], correct: 1, exp: "(14 + 6) = 20 → 20 ÷ 4 = 5 → 50 − 5 = 45" },
+            { topic: "PEMDAS", q: "[20 − (3 + 4)] × 2 =", options: ["26", "42", "34", "13"], correct: 0, exp: "(3 + 4) = 7 → 20 − 7 = 13 → 13 × 2 = 26" },
+            { topic: "PEMDAS", q: "(10 − 6)² + (18 ÷ 3) × 2 =", options: ["28", "20", "44", "19"], correct: 0, exp: "(10 − 6)² = 16, (18 ÷ 3) × 2 = 12 → 16 + 12 = 28" },
+
+            // PART 2: MIXED NUMBERS ↔ IMPROPER FRACTIONS — Q16 to Q30
+            { topic: "Mixed → Improper", q: `Convert ${m(2, 1, 3)} to an improper fraction:`, options: [f(7, 3), f(5, 3), f(6, 3), f(7, 2)], correct: 0, exp: `(2 × 3) + 1 = 7 → ${f(7, 3)}` },
+            { topic: "Mixed → Improper", q: `Convert ${m(3, 2, 5)} to an improper fraction:`, options: [f(11, 5), f(17, 5), f(13, 5), f(17, 3)], correct: 1, exp: `(3 × 5) + 2 = 17 → ${f(17, 5)}` },
+            { topic: "Mixed → Improper", q: `Convert ${m(4, 3, 4)} to an improper fraction:`, options: [f(16, 4), f(11, 4), f(19, 4), f(15, 4)], correct: 2, exp: `(4 × 4) + 3 = 19 → ${f(19, 4)}` },
+            { topic: "Mixed → Improper", q: `Convert ${m(5, 1, 2)} to an improper fraction:`, options: [f(11, 2), f(8, 2), f(10, 2), f(7, 2)], correct: 0, exp: `(5 × 2) + 1 = 11 → ${f(11, 2)}` },
+            { topic: "Mixed → Improper", q: `Convert ${m(1, 5, 6)} to an improper fraction:`, options: [f(6, 6), f(11, 6), f(12, 6), f(31, 6)], correct: 1, exp: `(1 × 6) + 5 = 11 → ${f(11, 6)}` },
+            { topic: "Mixed → Improper", q: `Convert ${m(6, 2, 7)} to an improper fraction:`, options: [f(44, 7), f(15, 7), f(42, 7), f(20, 7)], correct: 0, exp: `(6 × 7) + 2 = 44 → ${f(44, 7)}` },
+            { topic: "Mixed → Improper", q: `Convert ${m(7, 4, 9)} to an improper fraction:`, options: [f(20, 9), f(67, 9), f(63, 9), f(37, 9)], correct: 1, exp: `(7 × 9) + 4 = 67 → ${f(67, 9)}` },
+            { topic: "Mixed → Improper", q: `Which expression converts ${m(4, 5, 8)} to an improper fraction?`, options: [f("4 + 5 × 8", 8), f("(4 × 8) + 5", 8), f("(4 × 5) + 8", 8), f("(4 + 8) × 5", 8)], correct: 1, exp: `(Whole × Denominator) + Numerator over Denominator → ${f("(4 × 8) + 5", 8)} = ${f(37, 8)}` },
+
+            { topic: "Improper → Mixed", q: `Convert ${f(9, 4)} to a mixed number:`, options: [m(2, 1, 4), m(1, 5, 4), m(2, 3, 4), m(3, 1, 4)], correct: 0, exp: `9 ÷ 4 = 2 R 1 → ${m(2, 1, 4)}` },
+            { topic: "Improper → Mixed", q: `Convert ${f(14, 3)} to a mixed number:`, options: [m(3, 5, 3), m(4, 2, 3), m(4, 1, 3), m(5, 1, 3)], correct: 1, exp: `14 ÷ 3 = 4 R 2 → ${m(4, 2, 3)}` },
+            { topic: "Improper → Mixed", q: `Convert ${f(23, 5)} to a mixed number:`, options: [m(4, 3, 5), m(5, 2, 5), m(4, 2, 5), m(3, 8, 5)], correct: 0, exp: `23 ÷ 5 = 4 R 3 → ${m(4, 3, 5)}` },
+            { topic: "Improper → Mixed", q: `Convert ${f(19, 6)} to a mixed number:`, options: [m(2, 7, 6), m(3, 1, 6), m(3, 5, 6), m(4, 1, 6)], correct: 1, exp: `19 ÷ 6 = 3 R 1 → ${m(3, 1, 6)}` },
+            { topic: "Improper → Mixed", q: `Convert ${f(31, 8)} to a mixed number:`, options: [m(3, 7, 8), m(4, 1, 8), m(3, 5, 8), m(2, 15, 8)], correct: 0, exp: `31 ÷ 8 = 3 R 7 → ${m(3, 7, 8)}` },
+            { topic: "Improper → Mixed", q: `Convert ${f(27, 4)} to a mixed number:`, options: [m(6, 1, 4), m(7, 1, 4), m(6, 3, 4), m(5, 7, 4)], correct: 2, exp: `27 ÷ 4 = 6 R 3 → ${m(6, 3, 4)}` },
+            { topic: "Improper → Mixed", q: `Convert ${f(50, 9)} to a mixed number:`, options: [m(5, 5, 9), m(6, 4, 9), m(5, 4, 9), m(4, 14, 9)], correct: 0, exp: `50 ÷ 9 = 5 R 5 → ${m(5, 5, 9)}` }
+        ];
+
+        const state = { answers: {}, score: 0 };
+
+        function renderQuestions() {
+            const listEl = document.getElementById('questions-list');
+            listEl.innerHTML = '';
+            const letters = ['A', 'B', 'C', 'D'];
+
+            mathQuestions.forEach((item, idx) => {
+                const answeredIdx = state.answers[idx];
+                const isAnswered = answeredIdx !== undefined;
+                const isFrac = item.topic !== "PEMDAS";
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-md space-y-3";
+
+                let optionsHtml = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">';
+                item.options.forEach((opt, optIdx) => {
+                    let btnClass = "w-full p-3 rounded-xl border text-left text-sm sm:text-base font-bold transition-all flex items-center justify-between gap-2 ";
+                    let iconHtml = `<span class="w-6 h-6 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-[11px] font-bold shrink-0">${letters[optIdx]}</span>`;
+
+                    if (!isAnswered) {
+                        btnClass += "bg-slate-950/70 border-slate-700 hover:border-cyan-400 text-slate-100 active:scale-[0.99]";
+                    } else {
+                        if (optIdx === item.correct) {
+                            btnClass += "bg-emerald-950/50 border-emerald-500 text-emerald-200";
+                            iconHtml = `<span class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-xs font-bold shrink-0"><i class="fa-solid fa-check"></i></span>`;
+                        } else if (optIdx === answeredIdx) {
+                            btnClass += "bg-rose-950/50 border-rose-500 text-rose-200";
+                            iconHtml = `<span class="w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold shrink-0"><i class="fa-solid fa-xmark"></i></span>`;
+                        } else {
+                            btnClass += "bg-slate-950/40 border-slate-800 text-slate-500 opacity-60";
+                        }
+                    }
+
+                    optionsHtml += `
+                        <button onclick="selectAnswer(${idx}, ${optIdx})" ${isAnswered ? 'disabled' : ''} class="${btnClass}">
+                            <div class="flex items-center gap-2.5">
+                                ${iconHtml}
+                                <span class="math-expr">${opt}</span>
+                            </div>
+                        </button>
+                    `;
+                });
+                optionsHtml += '</div>';
+
+                let feedbackHtml = '';
+                if (isAnswered) {
+                    const gotItRight = answeredIdx === item.correct;
+                    feedbackHtml = `
+                        <div class="p-3 rounded-xl text-xs sm:text-sm leading-relaxed math-expr ${gotItRight ? 'bg-emerald-950/40 border border-emerald-500/40 text-emerald-300' : 'bg-amber-950/40 border border-amber-500/40 text-amber-200'}">
+                            <strong>${gotItRight ? '✓' : '→'}</strong> ${item.exp}
+                        </div>
+                    `;
+                }
+
+                const badgeColor = isFrac
+                    ? "bg-purple-500/15 text-purple-300 border border-purple-500/30"
+                    : "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30";
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="px-2.5 py-0.5 rounded-lg bg-slate-800 text-cyan-400 font-mono font-bold text-xs">
+                            Q${idx + 1}
+                        </span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${badgeColor}">
+                            ${item.topic}
+                        </span>
+                    </div>
+                    <p class="text-base sm:text-lg font-bold text-white leading-snug math-expr">
+                        ${item.q}
+                    </p>
+                    ${optionsHtml}
+                    ${feedbackHtml}
+                `;
+                listEl.appendChild(card);
+            });
+        }
+
+        function selectAnswer(qIdx, optIdx) {
+            if (state.answers[qIdx] !== undefined) return;
+            state.answers[qIdx] = optIdx;
+            if (optIdx === mathQuestions[qIdx].correct) {
+                state.score++;
+                if (state.score === 30) {
+                    confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+                }
+            }
+            renderQuestions();
+            updateStats();
+        }
+
+        function updateStats() {
+            const answeredCount = Object.keys(state.answers).length;
+            const scoreCount = state.score;
+            document.getElementById('live-score').innerText = scoreCount;
+            document.getElementById('live-answered').innerText = answeredCount;
+            document.getElementById('summary-answered').innerText = answeredCount;
+            document.getElementById('summary-correct').innerText = scoreCount;
+        }
+
+        function resetMathTest() {
+            state.answers = {};
+            state.score = 0;
+            renderQuestions();
+            updateStats();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onload = function() {
+            renderQuestions();
+            updateStats();
+        };
+    </script>
+</body>
+</html>
